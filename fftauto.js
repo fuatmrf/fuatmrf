@@ -90,6 +90,7 @@ const CommentAndLike = async function(session, accountId, text){
 			await Promise.all([Follow,doComment,doLike]);
 			return chalk`{bold.green SUKSES [Follow,Comment,Like]} | ${text}`;
 		}
+		return chalk`{bold.green SUKSES [FOLLOW]}`
 	} catch (err) {
 		return chalk`{bold.red GAGAL}`;
 	}
