@@ -135,7 +135,7 @@ const Excute = async function(User, TargetUsername, Text, Sleep){
 						const ngeDo = await CommentAndLike(doLogin.session, akun.id, ranText)
 						console.log(chalk`{bold.green [>]}${akun.params.username} => ${ngeDo}`)
 					} else {
-						console.log(chalk`{bold.yellow [SKIPPED]}${akun.params.username} => UDAH DI FOLLOW MHANK`)
+						console.log(chalk`{bold.yellow [SKIPPED]}${akun.params.username} => PRIVATE OR ALREADY FOLLOWED`)
 					}
 				}));
 				console.log(chalk`{yellow Delay For ${Sleep} MiliSeconds}`);
