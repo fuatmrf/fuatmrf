@@ -1,10 +1,3 @@
-'use strict'
-
-/** Follow Followers Target **/
-/** CODE BY CCOCOT | CCOCOT.CO **/
-/** ccocot@bc0de.net **/
-/** BC0DE.NET - NAONLAH.NET - WingKocoli **/
-
 const Client = require('instagram-private-api').V1;
 const delay = require('delay');
 const chalk = require('chalk');
@@ -32,7 +25,7 @@ const User = [
 	{
 		type:'input',
 		name:'text',
-		message:'Insert Text Comment'
+		message:'Insert Text Comment 1 (Gunakan Pemisah [|] bila lebih dari 1)'
 	},
 	{
 		type:'input',
@@ -137,7 +130,8 @@ const Excute = async function(User, TargetUsername, Text, Sleep){
 			for (let i = 0; i < TargetResult.length; i++) {
 				await Promise.all(TargetResult[i].map(async(akun) => {
 					if (!getFollowers.includes(akun.id) && akun.params.isPrivate === false) {
-						const ngeDo = await CommentAndLike(doLogin.session, akun.id, Text)
+						var ranText = Text[Math.floor(Math.random() * Text.length)];
+						const ngeDo = await CommentAndLike(doLogin.session, akun.id, ranText)
 						console.log(chalk`{bold.green [>]}${akun.params.username} => ${ngeDo}`)
 					} else {
 						console.log(chalk`{bold.yellow [SKIPPED]}${akun.params.username} => UDAH DI FOLLOW MHANK`)
@@ -163,8 +157,9 @@ console.log(chalk`
 
 inquirer.prompt(User)
 	.then(answers => {
+		var text = answers.text.split('|');
 		Excute({
 			username:answers.username,
 			password:answers.password
-		},answers.target,answers.text,answers.sleep);
+		},answers.target,text,answers.sleep);
 	})
