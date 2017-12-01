@@ -2,7 +2,7 @@
 
 # install
 
-* git clone https://github.com/ccocot/Unfollow-not-Followback.git
+* git clone https://github.com/ccocot/Instagram-Tools.git
 * cd Unfollow-not-Followback
 * npm install
 
