@@ -4,19 +4,37 @@
 /** CODE BY CCOCOT | CCOCOT.CO **/
 /** ccocot@bc0de.net **/
 /** BC0DE.NET - NAONLAH.NET - WingKocoli **/
+/** NOTE : RUN WITH PM2 **/
 
 const Client = require('instagram-private-api').V1;
 const delay = require('delay');
 const chalk = require('chalk');
+const _ = require('lodash');
+const inquirer = require('inquirer');
 
-var User = {
-    username: '',
-    password: ''
-}
-
-const onlyUnique = async function(value, index, self) { 
-    return self.indexOf(value) === index;
-}
+const User = [
+    {
+        type:'input',
+        name:'username',
+        message:'Insert Username'
+    },
+    {
+        type:'password',
+        name:'password',
+        message:'Insert Password',
+        mask:'*'
+    },
+    {
+        type:'input',
+        name:'sleep',
+        message:'Insert Sleep (In MiliSeconds)',
+        validate: function(value){
+            value = value.match(/[0-9]/);
+            if (value) return true;
+            return 'Delay is number';
+        }
+    }
+]
 
 const Login = async function(User){
 
@@ -35,61 +53,54 @@ const Login = async function(User){
 
 }
 
-const Timeline = async function(session,cursor){
-    var getCursor;
-
-    /** New Feed **/
-    const feed = new Client.Feed.Timeline(session);
-    
-    /** Cursor Detect **/
-    if (cursor) {
-        feed.setCursor(cursor);
-    }
-
+const Like = async function(session,media){
     try {
-        const media = await feed.get();
-        await Promise.all(media.map(async(media) => {
-            await Like(session,media);
-            
-        }));
-        console.log(chalk`{bold.yellow [-] DELAY FOR 1 Minute}`)
-        await delay(60000);
-        if (feed.isMoreAvailable()) {
-            console.log(chalk`{bold.green [+]DETECT NEW CURSOR !}`)
-            getCursor = feed.getCursor();
-            await Timeline(session,getCursor);
-        } else {
-            console.log(chalk`{bold.red [!]isMoreAvailable False, Repeat}`)
-            await Timeline(session,null);
+        if (media.params.hasLiked) {
+           return chalk`{bold.blue Already Liked}`;
         }
-    } catch(err) {
-        return Promise.reject(err);
-    }
-
-}
-
-const Like = async function(session,media,username){
-
-    try {
-        if (media.params.hasLiked === false) {
-            const Like = await Client.Like.create(session, media.params.id);
-           console.log(chalk`[{bold.cyan ${media.id}}] Username : ${media.params.user.username} => {bold.green Liked}`);
-        } else {
-            console.log(chalk`[{bold.cyan ${media.id}}] Username : ${media.params.user.username} => {bold.red Already Liked}`);
-        }
+        await Client.Like.create(session, media.id);
+        return chalk`{bold.green Liked}`;
     } catch (err) {
-        return Promise.reject(err);
+        return chalk`{bold.red Failed}`;
     }
-
 }
 
-const Ekse = async function(User){
+const Excute = async function(User, sleep){
     try {
+        console.log(chalk`\n{yellow [?] Try to Login ....}`);
         const doLogin = await Login(User);
-        await Timeline(doLogin.session,null);
+        console.log(chalk`{green [+] Login Succsess}, {yellow Try Like all media in feed ....}`);
+        const feed = new Client.Feed.Timeline(doLogin.session);
+        var cursor;
+        do {
+            if (cursor) feed.setCursor(cursor);
+            var media = await feed.get();
+            media = _.chunk(media, 5);
+            for (var i = 0; i < media.length; i++) {
+                await Promise.all(media[i].map(async (media) => {
+                    const doLike = await Like(doLogin.session, media);
+                    console.log(chalk`${media.params.user.username} [{cyan ${media.id}}] => ${doLike}`);
+                }))
+                await console.log(chalk`{yellow [-] Delay For ${sleep} MiliSeconds}`);
+                await delay(sleep);
+            }
+        } while(feed.isMoreAvailable());
     } catch (err) {
         console.log(err);
     }
 }
 
-Ekse(User);
+console.log(chalk`
+{bold Instagram BOT LIKE v1}
+{green BC0DE.NET - NAONLAH.NET - WingKocoli}
+{bold.red Code By Ccocot | ccocot@bc0de.net}
+{bold /** NOTE : RUN WITH PM2 **/}
+`);
+
+inquirer.prompt(User)
+    .then(answers => {
+        Excute({
+            username:answers.username,
+            password:answers.password
+        },answers.sleep);
+    })
