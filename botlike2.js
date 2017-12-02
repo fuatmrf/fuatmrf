@@ -8,15 +8,21 @@
 const Client = require('instagram-private-api').V1;
 const delay = require('delay');
 const chalk = require('chalk');
+const inquirer = require('inquirer');
 
-var User = {
-    username: '',
-    password: ''
-}
-
-const onlyUnique = async function(value, index, self) { 
-    return self.indexOf(value) === index;
-}
+const User = [
+    {
+        type:'input',
+        name:'username',
+        message:'Insert Username'
+    },
+    {
+        type:'password',
+        name:'password',
+        message:'Insert Password',
+        mask:'*'
+    }
+]
 
 const Login = async function(User){
 
@@ -56,9 +62,9 @@ const Timeline = async function(session,count,cursor){
             getCursor = await feed.getCursor();
             await Timeline(session,count,getCursor);
         } else {
+            console.log('[-] Repeat from scratch (Delay 60s)');
             await delay(60000);
             count=0;
-            console.log('[-] Repeat from scratch (Delay 60s)');
             await Timeline(session,count);
         }
     } catch(err) {
@@ -82,7 +88,7 @@ const Like = async function(session,media){
 
 }
 
-const Ekse = async function(User){
+const Excute = async function(User){
     try {
         const count = 0;
         const doLogin = await Login(User);
@@ -92,4 +98,16 @@ const Ekse = async function(User){
     }
 }
 
-Ekse(User);
+console.log(chalk`
+{bold Instagram BOT LIKE v2}
+{green BC0DE.NET - NAONLAH.NET - WingKocoli}
+{bold.red Code By Ccocot | ccocot@bc0de.net}
+`);
+
+inquirer.prompt(User)
+    .then(answers => {
+        Excute({
+            username:answers.username,
+            password:answers.password
+        });
+    })
