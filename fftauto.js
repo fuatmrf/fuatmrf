@@ -9,23 +9,39 @@ const User = [
 	{
 		type:'input',
 		name:'username',
-		message:'Insert Username'
+		message:'Insert Username',
+		validate: function(value){
+			if(!value) return 'Can\'t Empty';
+			return true;
+		}
 	},
 	{
 		type:'password',
 		name:'password',
 		message:'Insert Password',
-		mask:'*'
+		mask:'*',
+		validate: function(value){
+			if(!value) return 'Can\'t Empty';
+			return true;
+		}
 	},
 	{
 		type:'input',
 		name:'target',
-		message:'Insert Username Target (Without @[at])'
+		message:'Insert Username Target (Without @[at])',
+		validate: function(value){
+			if(!value) return 'Can\'t Empty';
+			return true;
+		}
 	},
 	{
 		type:'input',
 		name:'text',
-		message:'Insert Text Comment 1 (Gunakan Pemisah [|] bila lebih dari 1)'
+		message:'Insert Text Comment 1 (Gunakan Pemisah [|] bila lebih dari 1)',
+		validate: function(value){
+			if(!value) return 'Can\'t Empty';
+			return true;
+		}
 	},
 	{
 		type:'input',
