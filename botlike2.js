@@ -14,13 +14,21 @@ const User = [
     {
         type:'input',
         name:'username',
-        message:'Insert Username'
+        message:'Insert Username',
+		validate: function(value){
+			if(!value) return 'Can\'t Empty';
+			return true;
+		}
     },
     {
         type:'password',
         name:'password',
         message:'Insert Password',
-        mask:'*'
+        mask:'*',
+		validate: function(value){
+			if(!value) return 'Can\'t Empty';
+			return true;
+		}
     }
 ]
 
