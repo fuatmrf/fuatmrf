@@ -77,24 +77,57 @@ const Target = async function(username){
 
 }
 
+async function ngefollow(session,accountId){
+	try {
+		await Client.Relationship.create(session, accountId);
+		return true
+	} catch (e) {
+		return false
+	}
+}
+
+async function ngeComment(session, id, text){
+	try {
+		await Client.Comment.create(session, id, text);
+		return true;
+	} catch(e){
+		return false;
+	}
+}
+
+async function ngeLike(session, id){
+	try{
+		await Client.Like.create(session, result[0].params.id)
+		return true;
+	} catch(e) {
+		return false;
+	}
+}
+
 const CommentAndLike = async function(session, accountId, text){
+	var result;
 
 	const feed = new Client.Feed.UserMedia(session, accountId);
 
 	try {
-		const result = await feed.get();
-		if (result.length > 0) {
-			const Follow = Client.Relationship.create(session, accountId);
-			const doComment = Client.Comment.create(session, result[0].params.id, text);
-			const doLike =  Client.Like.create(session, result[0].params.id);
-			await Promise.all([Follow,doComment,doLike]);
-			return chalk`{bold.green SUKSES [Follow,Comment,Like]} | ${text}`;
-		}
-		return chalk`{bold.green SUKSES [FOLLOW]}`
+		result = await feed.get();
 	} catch (err) {
-		return chalk`{bold.red GAGAL}`;
+		return chalk`{bold.red ${err}}`;
 	}
 
+	if (result.length > 0) {
+		const task = [
+			ngefollow(session, accountId),
+			ngeComment(session, result[0].params.id, text),
+			ngeLike(session, result[0].params.id)
+		]
+		const [Follow,Comment,Like] = await Promise.all(task);
+		const printFollow = Follow ? chalk`{green Follow}` : chalk`{red Follow}`;
+		const printComment = Comment ? chalk`{green Comment}` : chalk`{red Comment}`;
+		const printLike = Like ? chalk`{green Like}` : chalk`{red Like}`;
+		return chalk`{bold.green ${printFollow},${printComment},${printLike} [${text}]}`;
+	}
+	return chalk`{bold.cyan Timeline Kosong (SKIPPED)}`
 };
 
 const Followers = async function(session, id){
@@ -118,10 +151,13 @@ const Followers = async function(session, id){
 
 const Excute = async function(User, TargetUsername, Text, Sleep){
 	try {
+		console.log(chalk`{yellow \n | Try to Login .....}`)
 		const doLogin = await Login(User);
+		console.log(chalk`{green  | Login Succsess, try to get Followers Target ....}`)
 		const getTarget = await Target(TargetUsername);
-		console.log(chalk`{yellow ${TargetUsername}[${getTarget.id}] Followers: ${getTarget.followers}}\n`)
+		console.log(chalk`{green  | ${TargetUsername}[${getTarget.id}] Followers: ${getTarget.followers}}`)
 		const getFollowers = await Followers(doLogin.session, doLogin.account.id)
+		console.log(chalk`{cyan  | Try to Follow, Comment, and Like Followers Target ... \n}`)
 		const Targetfeed = new Client.Feed.AccountFollowers(doLogin.session, getTarget.id);
 		var TargetCursor;
 		do {
