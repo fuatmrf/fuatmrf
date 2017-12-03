@@ -15,20 +15,20 @@ const User = [
         type:'input',
         name:'username',
         message:'Insert Username',
-		validate: function(value){
-			if(!value) return 'Can\'t Empty';
-			return true;
-		}
+	validate: function(value){
+		if(!value) return 'Can\'t Empty';
+		return true;
+	}
     },
     {
         type:'password',
         name:'password',
         message:'Insert Password',
         mask:'*',
-		validate: function(value){
-			if(!value) return 'Can\'t Empty';
-			return true;
-		}
+	validate: function(value){
+		if(!value) return 'Can\'t Empty';
+		return true;
+	}
     }
 ]
 
