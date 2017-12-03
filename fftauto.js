@@ -97,7 +97,7 @@ async function ngeComment(session, id, text){
 
 async function ngeLike(session, id){
 	try{
-		await Client.Like.create(session, result[0].params.id)
+		await Client.Like.create(session, id)
 		return true;
 	} catch(e) {
 		return false;
